@@ -1,0 +1,531 @@
+﻿@{
+    ViewBag.Title = "Ragnar Tracker";
+    var x = Html.X();
+}
+
+
+<style>
+    .ragnarVan1 {background: white; }
+    .ragnarVan2 {background: rgb(203, 255, 202); }
+    .grayfont   {color: gray; font-weight: normal; }
+    .darkfont   {color: black; font-weight: bold; }
+</style>
+
+// edit: http://mvc.ext.net/#/GridPanel_Editable/Editor_with_DirectMethod/
+
+<script type="text/javascript">
+    //
+    // imgDifficulty
+    function imgDifficulty(value, meta, record, rowIndex, colIndex, store) {
+        var s = "";
+        for (var i = 0; i < value; i++)
+            s += "<img src='@(Url.Content("~/Content/icon_favourites.gif"))'/>";
+        return s;
+    }
+
+    //
+    // RendererTime
+    var RendererTime = function (value, metadata, record, rowIndex, colIndex, store) {
+        try {
+            var res = "";
+            if (value != null && value != "") {
+                res = Math.trunc(value) + ":";
+                var i = Math.trunc((value - Math.floor(value)) * 60);
+                if (i < 10)
+                    res += "0";
+                res += i;
+            }
+            return res;
+        } catch (e) {
+            return "";
+        }
+    };
+
+    //
+    // RendererRunner
+    var RendererRunner = function (value, metadata, record, rowIndex, colIndex, store) {
+        try {
+            return record.data.RunnerName;
+        } catch (e) {
+            return "";
+        }
+    };
+
+    //
+    // editGridStatusCallback
+    var editGridStatusCallback = function (editor, e) {
+        if (!(e.value === e.originalValue)) {
+            Ext.net.DirectMethod.request({
+                url: '@(Url.Action("EditLegRunner"))',
+                params: {
+                    teamId: e.record.data.TeamID,
+                    legId: e.record.data.LegID,
+                    legRunnerId: e.record.data.LegRunnerID,
+                    field: e.field,
+                    value: e.value
+                },
+                success: function (result) {
+                    RefreshAll();
+                    return;
+                }
+            });
+        }
+    };
+
+    //
+    // editGridRunnersCallback
+    var editGridRunnersCallback = function (editor, e) {
+        if (!(e.value === e.originalValue)) {
+            var t = e.record.data.Type;
+            if (e.record.data.Type == "Runner")
+                t = 0;
+            else if (e.record.data.Type == "Driver")
+                t = 1;
+            Ext.net.DirectMethod.request({
+                url: '@(Url.Action("EditRunner"))',
+                params: {
+                    id: e.record.data.Id,
+                    name: e.record.data.Name,
+                    displayname: e.record.data.DisplayName,
+                    pace: e.record.data.Pace,
+                    cell: e.record.data.Cell,
+                    email: e.record.data.Email,
+                    emergencycontact: e.record.data.EmergencyContact,
+                    type: t
+                },
+                success: function (result) {
+                    RefreshAll();
+                    return;
+                }
+            });
+        }
+    };
+
+    //
+    // getRowClass
+    var getRowClass = function (record, row) {
+        if (record.data.Van == 1)
+            return "ragnarVan1";
+        else
+            return "ragnarVan2";
+    }
+
+    //
+    // ragnarFormatDate
+    var ragnarFormatDate = function (value) {
+        if (value == null)
+            return "00:00 AM";
+        var h = value.getHours();
+        var m = value.getMinutes();
+        if (h <= 12)
+            return (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m + (h < 12 ? " AM" : " PM");
+        else {
+            h -= 12;
+            return (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m + (h < 12 ? " PM" : " AM");
+        }
+    }
+
+    //
+    // getStartTimeCellColor
+    var getStartTimeCellColor = function (value, meta, record) {
+        if (record.data.StartTimeEstimated == true)
+            meta.tdCls = 'grayfont';
+        else
+            meta.tdCls = 'darkfont';
+        return ragnarFormatDate(value);
+    }
+
+    //
+    // getEndTimeCellColor 
+    var getEndTimeCellColor = function (value, meta, record) {
+        if (record.data.EndTimeEstimated == true)
+            meta.tdCls = 'grayfont';
+        else
+            meta.tdCls = 'darkfont';
+        return ragnarFormatDate(value);
+    }
+
+    //
+    // setTeam1
+    var setTeam1 = function () {
+        var oForm = document.forms[0];
+        oForm.elements["team"].value = 1;
+        RefreshAll();
+    }
+
+    //
+    // setTeam2
+    var setTeam2 = function () {
+        var oForm = document.forms[0];
+        oForm.elements["team"].value = 2;
+        RefreshAll();
+    }
+
+    //
+    // RefreshAll
+    var RefreshAll = function () {
+
+        var oForm = document.forms[0];
+        if (oForm.elements["team"].value != 1 && oForm.elements["team"].value != 2)
+            oForm.elements["team"].value = 1;
+
+        Ext.net.Mask.show({ msg: 'Retrieving information...' });
+        Ext.net.DirectMethod.request({
+            url: '@(Url.Action("AjaxData"))',
+            timeout: 100000,
+            method: 'GET',
+            params: {
+                team: oForm.elements["team"].value
+            },
+            success: function (result) {
+                try {
+                    App.storeTypes.loadRawData(result.data.RunnerTypes, true);
+                    App.storeRunners.loadRawData(result.data.Runners, true);
+                    App.storeLegRunners.loadRawData(result.data.LegRunners, true);
+
+                    App.RunnerDisplay.update(result.data.DisplayRunner);
+                    App.TeamDisplay.update(result.data.DisplayTeam);
+
+                    if (result.data.Error != "")
+                        alert(result.data.Error);
+
+                } catch (e) {
+
+                } 
+                Ext.net.Mask.hide();
+            },
+            failure: function (result) {
+                Ext.net.Mask.hide();
+            }
+        });
+    }
+
+    //
+    // Ext.onReady
+    Ext.onReady(
+        function () {
+            RefreshAll();
+        }
+    );
+</script>
+
+@(x.Store()
+    .ID("storeRunners")
+    .Model(x.Model()
+        .IDProperty("Id")
+        .Fields(
+            x.ModelField()
+                .Name("Id")
+                .Type(ModelFieldType.Int),
+            x.ModelField()
+                .Name("Name")
+                .Type(ModelFieldType.String),
+            x.ModelField()
+                .Name("Pace")
+                .Type(ModelFieldType.Float),
+            x.ModelField()
+                .Name("Cell")
+                .Type(ModelFieldType.String),
+            x.ModelField()
+                .Name("Email")
+                .Type(ModelFieldType.String),
+            x.ModelField()
+                .Name("EmergencyContact")
+                .Type(ModelFieldType.String)
+        )
+    )
+)
+
+@(x.Store()
+    .ID("storeLegRunners")
+    .Model(x.Model()
+        .IDProperty("LegID")
+        .Fields(
+            x.ModelField()
+                .Name("TeamID")
+                .Type(ModelFieldType.Int),
+            x.ModelField()
+                .Name("LegID")
+                .Type(ModelFieldType.Int),
+            x.ModelField()
+                .Name("Order")
+                .Type(ModelFieldType.Int),
+            x.ModelField()
+                .Name("LegRunnerID")
+                .Type(ModelFieldType.Auto),
+            x.ModelField()
+                .Name("RunnerID")
+                .Type(ModelFieldType.Auto),
+            x.ModelField()
+                .Name("RunnerName")
+                .Type(ModelFieldType.String),
+            x.ModelField()
+                .Name("RunnerPace")
+                .Type(ModelFieldType.String),
+            x.ModelField()
+                .Name("RunnerCell")
+                .Type(ModelFieldType.String),
+            x.ModelField()
+                .Name("Van")
+                .Type(ModelFieldType.Int),
+            x.ModelField()
+                .Name("Distance")
+                .Type(ModelFieldType.Float),
+            x.ModelField()
+                .Name("Difficulty")
+                .Type(ModelFieldType.Int),
+            x.ModelField()
+                .Name("StartTime")
+                .Type(ModelFieldType.Date),
+            x.ModelField()
+                .Name("EndTime")
+                .Type(ModelFieldType.Date),
+            x.ModelField()
+                .Name("LegTime")
+                .Type(ModelFieldType.String),
+            x.ModelField()
+                .Name("TruePace")
+                .Type(ModelFieldType.String)
+        )
+    )
+)
+
+
+@(x.Store()
+    .ID("storeTypes")
+    .Model(x.Model()
+        .IDProperty("Id")
+        .Fields(
+            x.ModelField()
+                .Name("Id")
+                .Type(ModelFieldType.Int),
+            x.ModelField()
+                .Name("Name")
+                .Type(ModelFieldType.String)
+        )
+    )
+)
+
+@(x.TaskManager()
+    .Tasks(
+        x.Task()
+            .TaskID("RegularRefresh")
+            .Interval(5000)
+    )
+)
+
+@(x.Viewport()
+      .Layout(LayoutType.Border)
+      .Items(
+          x.Panel()
+              .Region(Region.North)
+              .Layout(LayoutType.Border)
+              .Height(50)
+              .Items(
+                
+                
+                  x.Panel()
+                      .Region(Region.Center)
+                      .Layout(LayoutType.HBox)
+                      .BodyPadding(5)
+                      .Defaults(x.Parameter().Name("margin").Value("0 5 0 0").Mode(ParameterMode.Value))
+                      .LayoutConfig(new HBoxLayoutConfig { Align = HBoxAlign.Middle, Pack = BoxPack.End })
+                      
+                      .Items(
+                          x.Panel()
+                              .PaddingSpec("0 0 0 0")
+                              .ID("TeamDisplay"),
+                          x.Component().Flex(1),
+                          x.Panel()
+                              .PaddingSpec("0 20 0 10")
+                              .ID("RunnerDisplay"),
+                          x.Button()
+                              .Text("Team 1")
+                              .Handler("setTeam1")
+                              .Width(60),
+                          x.Button()
+                              .Text("Team 2")
+                              .Handler("setTeam2")
+                              .Width(60),
+                          x.Button()
+                              .Region(Region.East)
+                              .Icon(Icon.ArrowRefresh)
+                              .Handler("RefreshAll")
+                      )
+              ),
+      
+          x.TabPanel()
+              .Layout(LayoutType.Border)
+              .TabPosition(TabPosition.Left)
+              .Height(50)
+              .Region(Region.Center)
+              .Items(
+                  x.Panel()
+                      .Title("Status")
+                      .Layout(LayoutType.Border)
+                      .Items(
+                          x.GridPanel()
+                              .Region(Region.Center)
+                              .AutoScroll(true)
+                              .Resizable(false)
+                              .ID("grdStatus")
+                              .StoreID("storeLegRunners")
+                              .ViewConfig(
+                                  x.GridView()
+                                      .GetRowClass(f => f.Fn = "getRowClass")
+                              )
+                              .Plugins(
+                                  x.CellEditing()
+                                      .Listeners(ls => ls.Edit.Fn = "editGridStatusCallback")
+                              )
+                              .ColumnModel(
+                                  x.Column()
+                                      .Text("#")
+                                      .DataIndex("Order")
+                                      .Width(25),
+                                  x.Column()
+                                      .Text("Distance")
+                                      .DataIndex("Distance")
+                                      .Align(Alignment.Center	)
+                                      .Width(80),
+                                  x.Column()
+                                      .Text("Difficulty")
+                                      .DataIndex("Difficulty")
+                                      .Renderer("return imgDifficulty(value);")
+                                      .Width(100),
+                                  x.Column()
+                                      .Text("Runner")
+                                      .Flex(1)
+                                      .MinWidth(120)
+                                      .DataIndex("RunnerID")
+                                      .Renderer("RendererRunner")
+                                      .Editor(
+                                          x.ComboBox()
+                                              .SelectOnTab(true)
+                                              .QueryMode(DataLoadMode.Local)
+                                              .StoreID("storeRunners")
+                                              .ID("grdStatusRunnerCombo")
+                                              .ForceSelection(true)
+                                              .TriggerAction(TriggerAction.All)
+                                              .DisplayField("Name")
+                                              .ValueField("Id")
+                                              .EmptyText("** Unassigned **")
+                                              .ValueNotFoundText("** Unassigned **")
+                                      ),
+                                  x.Column()
+                                      .Text("Cell Phone")
+                                      .Width(120)
+                                      .DataIndex("RunnerCell"),
+                                  x.Column()
+                                      .Text("Pace")
+                                      .Width(50)
+                                      .DataIndex("RunnerPace"),
+                                  x.DateColumn()
+                                      .Text("Leg Start")
+                                      .DataIndex("StartTime")
+                                      .Width(100)
+                                      .Format("h:mm A")
+                                      .Editor(
+                                          x.TimeField()
+                                      )
+                                      .Renderer("getStartTimeCellColor"),
+                                  x.DateColumn()
+                                      .Text("Leg End")
+                                      .DataIndex("EndTime")
+                                      .Format("h:mm A")
+                                      .Width(100)
+                                      .Editor(
+                                          x.TimeField()
+                                      )
+                                      .Renderer("getEndTimeCellColor"),
+                                  x.Column()
+                                      .Text("Leg Time")
+                                      .Width(100)
+                                      .DataIndex("LegTime"),
+                                  x.Column()
+                                      .Text("Leg Pace")
+                                      .Width(100)
+                                      .DataIndex("TruePace")
+                                      .Renderer("RendererTime")
+                              )
+                      ),
+              
+                  x.Panel()
+                      .Title("Runners")
+                      .Layout(LayoutType.Border)
+                      .Items(
+                          x.GridPanel()
+                              .Region(Region.Center)
+                              .AutoScroll(true)
+                              .Resizable(false)
+                              .ID("grdRunners")
+                              .StoreID("storeRunners")
+                              .Plugins(
+                                  x.CellEditing()
+                                      .Listeners(ls => ls.Edit.Fn = "editGridRunnersCallback")
+                              )
+                              .ColumnModel(
+                                  x.Column()
+                                      .Text("Runner")
+                                      .DataIndex("Name")
+                                      .Flex(2)
+                                      .Editor(
+                                          x.TextField()
+                                      ),
+                                  x.Column()
+                                      .Text("Display Name")
+                                      .DataIndex("DisplayName")
+                                      .Flex(1)
+                                      .Editor(
+                                          x.TextField()
+                                      ),
+                                  x.Column()
+                                      .Text("Pace")
+                                      .DataIndex("Pace")
+                                      .Width(100)
+                                      .Editor(
+                                          x.NumberField()
+                                      ),
+                                  x.Column()
+                                      .Text("Role")
+                                      .DataIndex("Type")
+                                      .Width(100)
+                                      .Editor(
+                                          x.ComboBox()
+                                              .ID("grdRunnersTypeCombo")
+                                              .SelectOnTab(true)
+                                              .StoreID("storeTypes")
+                                              .QueryMode(DataLoadMode.Local)
+                                              .ForceSelection(true)
+                                              .TriggerAction(TriggerAction.All)
+                                              .DisplayField("Name")
+                                              .ValueField("Id")
+                                              .EmptyText("** Unassigned **")
+                                              .ValueNotFoundText("** Unassigned **")
+                                      ),
+                                  x.Column()
+                                      .Text("Cell Phone")
+                                      .DataIndex("Cell")
+                                      .Width(150)
+                                      .Editor(
+                                          x.TextField()
+                                      ),
+                                  x.Column()
+                                      .Text("Emergency Contact")
+                                      .DataIndex("EmergencyContact")
+                                      .Flex(2)
+                                      .Editor(
+                                          x.TextField()
+                                      )
+                              )
+                      )
+                  
+              )
+              
+      ))
+
+
+<form>
+    <input type="hidden" name="team" />
+</form>
+
