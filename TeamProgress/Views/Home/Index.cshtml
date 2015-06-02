@@ -382,20 +382,24 @@
                                   x.Column()
                                       .Text("#")
                                       .DataIndex("Order")
+                                      .Sortable(false)
                                       .Width(25),
                                   x.Column()
                                       .Text("Distance")
                                       .DataIndex("Distance")
+                                      .Sortable(false)
                                       .Align(Alignment.Center	)
                                       .Width(80),
                                   x.Column()
                                       .Text("Difficulty")
                                       .DataIndex("Difficulty")
+                                      .Sortable(false)
                                       .Renderer("return imgDifficulty(value);")
                                       .Width(100),
                                   x.Column()
                                       .Text("Runner")
                                       .Flex(1)
+                                      .Sortable(false)
                                       .MinWidth(120)
                                       .DataIndex("RunnerID")
                                       .Renderer("RendererRunner")
@@ -414,14 +418,17 @@
                                       ),
                                   x.Column()
                                       .Text("Cell Phone")
+                                      .Sortable(false)
                                       .Width(120)
                                       .DataIndex("RunnerCell"),
                                   x.Column()
                                       .Text("Pace")
+                                      .Sortable(false)
                                       .Width(50)
                                       .DataIndex("RunnerPace"),
                                   x.DateColumn()
                                       .Text("Leg Start")
+                                      .Sortable(false)
                                       .DataIndex("StartTime")
                                       .Width(100)
                                       .Format("h:mm A")
@@ -431,6 +438,7 @@
                                       .Renderer("getStartTimeCellColor"),
                                   x.DateColumn()
                                       .Text("Leg End")
+                                      .Sortable(false)
                                       .DataIndex("EndTime")
                                       .Format("h:mm A")
                                       .Width(100)
@@ -439,10 +447,12 @@
                                       )
                                       .Renderer("getEndTimeCellColor"),
                                   x.Column()
+                                      .Sortable(false)
                                       .Text("Leg Time")
                                       .Width(100)
                                       .DataIndex("LegTime"),
                                   x.Column()
+                                      .Sortable(false)
                                       .Text("Leg Pace")
                                       .Width(100)
                                       .DataIndex("TruePace")
