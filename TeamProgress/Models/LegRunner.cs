@@ -16,13 +16,14 @@ namespace TeamProgress.Models
         public Boolean EndTimeEstimated { get; set; }
         public String LegTime { get; set; }
         public string TruePace { get; set; }
+        public string LegMap { get; set; }
 
         public LegRunner()
         {
             
         }
 
-        public LegRunner(int team, int leg, int order, int? legrunner, int? runner, double distance, int van, int difficulty, DateTime? starttime, bool starttime_estimated, DateTime? endtime, bool endtime_estimated, string legtime, string truepace, string runnername, string runnerpace, string runnercell)
+        public LegRunner(int team, int leg, int order, int? legrunner, int? runner, double distance, int van, int difficulty, DateTime? starttime, bool starttime_estimated, DateTime? endtime, bool endtime_estimated, string legtime, string truepace, string runnername, string runnerpace, string runnercell, string legmap)
         {
             StartTime = starttime;
             EndTime = endtime;
@@ -41,6 +42,7 @@ namespace TeamProgress.Models
             RunnerName = runnername;
             RunnerPace = runnerpace;
             RunnerCell = runnercell;
+            LegMap = legmap;
         }
     }
 }

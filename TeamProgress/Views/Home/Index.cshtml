@@ -285,6 +285,9 @@
                 .Type(ModelFieldType.String),
             x.ModelField()
                 .Name("TruePace")
+                .Type(ModelFieldType.String),
+            x.ModelField()
+                .Name("LegMap")
                 .Type(ModelFieldType.String)
         )
     )
@@ -385,10 +388,16 @@
                                       .Sortable(false)
                                       .Width(25),
                                   x.Column()
+                                      .Sortable(false)
+                                      .Text("Map")
+                                      .Width(60)
+                                      .Align(Alignment.Center)
+                                      .DataIndex("LegMap"),
+                                  x.Column()
                                       .Text("Distance")
                                       .DataIndex("Distance")
                                       .Sortable(false)
-                                      .Align(Alignment.Center	)
+                                      .Align(Alignment.Center)
                                       .Width(80),
                                   x.Column()
                                       .Text("Difficulty")

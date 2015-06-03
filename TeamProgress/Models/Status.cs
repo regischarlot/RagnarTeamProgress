@@ -65,11 +65,7 @@ namespace TeamProgress.Models
                     RunnerTypes.Add(new Pair((int) eType.Driver, "Driver"));
                     //
                     // A. Team
-                    using (
-                        SqlCommand myCommand =
-                            new SqlCommand(
-                                string.Format("SELECT [TeamID],[Name] FROM [Ragnar].[dbo].[Team] WHERE [TeamID]={0}",
-                                    team), conn))
+                    using (SqlCommand myCommand = new SqlCommand(string.Format("SELECT [TeamID],[Name] FROM [Ragnar].[dbo].[Team] WHERE [TeamID]={0}", team), conn))
                     {
                         using (SqlDataReader rdr = myCommand.ExecuteReader())
                         {
@@ -82,8 +78,7 @@ namespace TeamProgress.Models
                     }
                     //
                     // A. Runners
-                    using (
-                        SqlCommand myCommand = new SqlCommand(string.Format("SELECT [RunnerID],[Name],[DisplayName],[Pace],[Cell],[Email],[EmergencyContact], [Type] FROM [Ragnar].[dbo].[Runner] order by Name", team), conn))
+                    using (SqlCommand myCommand = new SqlCommand(string.Format("SELECT [RunnerID],[Name],[DisplayName],[Pace],[Cell],[Email],[EmergencyContact], [Type] FROM [Ragnar].[dbo].[Runner] order by Name", team), conn))
                     {
                         SqlDataReader rdr = myCommand.ExecuteReader();
                         while (rdr.Read())
@@ -105,7 +100,7 @@ namespace TeamProgress.Models
                                                                                "    A.[Van], " +
                                                                                "    A.[Difficulty], " +
                                                                                "    B.[RunnerID], " +
-                                                                               "    C.[DisplayName] RunnerName, " +
+                                                                               "    C.[Name] RunnerName, " +
                                                                                "    C.[Pace] RunnerPace, " +
                                                                                "    C.[Cell] RunnerCell, " +
                                                                                "    B.[StartTime], " +
@@ -120,6 +115,7 @@ namespace TeamProgress.Models
                         SqlDataReader rdr = myCommand.ExecuteReader();
                         bool rds_est = true, rde_est = true;
                         DateTime? rds = null, rde = null, prev_rde = null;
+                        int cnt = 0;
                         while (rdr.Read())
                         {
                             // Distance
@@ -162,12 +158,10 @@ namespace TeamProgress.Models
                                     rde = rds.ToDateTime().AddHours(dist*pace/60);
                             }
                             TimeSpan ts = rde.ToDateTime().Subtract(rds.ToDateTime());
-                            string legtime = string.Format("{0:D2}:{1:D2}:{2:D2}",
-                                new object[] {ts.Hours, ts.Minutes, ts.Seconds});
+                            string legtime = string.Format("{0:D2}:{1:D2}:{2:D2}", new object[] {ts.Hours, ts.Minutes, ts.Seconds});
                             string truepace = string.Empty;
                             if (!rds_est && !rde_est)
-                                truepace = string.Format("{0:F2}",
-                                    ((ts.Hours*3600 + ts.Minutes*60 + ts.Seconds)/dist)/60);
+                                truepace = string.Format("{0:F2}", ((ts.Hours*3600 + ts.Minutes*60 + ts.Seconds)/dist)/60);
                             //
                             // Display Runner
                             if ((rdr["StartTime"] != DBNull.Value && rdr["EndTime"] == DBNull.Value) ||
@@ -188,10 +182,7 @@ namespace TeamProgress.Models
                                     });
                             //
                             // Display Team
-                            DisplayTeam =
-                                string.Format(
-                                    "<table height='100%' width='100%'><tr><td style=\"text-align:center; vertical-align:middle; font-size:20pt; \">{0}</td></tr></table>",
-                                    new object[] {TeamDefinition.Name});
+                            DisplayTeam = string.Format("<table height='100%' width='100%'><tr><td style=\"text-align:center; vertical-align:middle; font-size:20pt; \">{0}</td></tr></table>", new object[] {TeamDefinition.Name});
                             //
                             // Add leg runner
                             LegRunners.Add(new LegRunner(
@@ -211,7 +202,8 @@ namespace TeamProgress.Models
                                 truepace,
                                 rdr["RunnerName"].ToString(),
                                 rdr["RunnerPace"].ToString(),
-                                rdr["RunnerCell"].ToString()));
+                                rdr["RunnerCell"].ToString(),
+                                string.Format("<a href=\"https://www.ragnarrelay.com/race/chicago/legs/{0}\" target=\"_blank\">Leg {0}</a>", ++cnt)));
                             prev_rde = rde;
                         }
                         rdr.Close();
