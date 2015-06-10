@@ -182,6 +182,7 @@
                     App.storeTypes.loadRawData(result.data.RunnerTypes, true);
                     App.storeRunners.loadRawData(result.data.Runners, true);
                     App.storeLegRunners.loadRawData(result.data.LegRunners, true);
+                    App.storeExchanges.loadRawData(result.data.Exchanges, true);
 
                     App.RunnerDisplay.update(result.data.DisplayRunner);
                     App.TeamDisplay.update(result.data.DisplayTeam);
@@ -309,6 +310,37 @@
     )
 )
 
+@(x.Store()
+    .ID("storeExchanges")
+    .Model(x.Model()
+        .IDProperty("Id")
+        .Fields(
+            x.ModelField()
+                .Name("Id")
+                .Type(ModelFieldType.Int),
+            x.ModelField()
+                .Name("Name")
+                .Type(ModelFieldType.String),
+            x.ModelField()
+                .Name("Address")
+                .Type(ModelFieldType.String),
+            x.ModelField()
+                .Name("City")
+                .Type(ModelFieldType.String),
+            x.ModelField()
+                .Name("State")
+                .Type(ModelFieldType.String),
+            x.ModelField()
+                .Name("ZIP")
+                .Type(ModelFieldType.String),
+            x.ModelField()
+                .Name("Van")
+                .Type(ModelFieldType.String)
+        )
+    )
+)
+
+
 @(x.TaskManager()
     .Tasks(
         x.Task()
@@ -382,11 +414,6 @@
                                       .Listeners(ls => ls.Edit.Fn = "editGridStatusCallback")
                               )
                               .ColumnModel(
-                                  //x.Column()
-                                  //    .Text("#")
-                                  //    .DataIndex("Order")
-                                  //    .Sortable(false)
-                                  //    .Width(25),
                                   x.Column()
                                       .Sortable(false)
                                       .Text("Map")
@@ -536,6 +563,47 @@
                                       .Editor(
                                           x.TextField()
                                       )
+                              )
+                      ),
+                  x.Panel()
+                      .Title("Exchanges")
+                      .Layout(LayoutType.Border)
+                      .Items(
+                          x.GridPanel()
+                              .Region(Region.Center)
+                              .AutoScroll(true)
+                              .Resizable(false)
+                              .ID("grdExchanges")
+                              .StoreID("storeExchanges")
+                              .ViewConfig(
+                                  x.GridView()
+                                      .GetRowClass(f => f.Fn = "getRowClass")
+                              )
+                              .ColumnModel(
+                                  x.Column()
+                                      .Text("#")
+                                      .DataIndex("Id")
+                                      .Width(25),
+                                  x.Column()
+                                      .Text("Location")
+                                      .DataIndex("Name")
+                                      .Flex(1),
+                                  x.Column()
+                                      .Text("Address")
+                                      .DataIndex("Address")
+                                      .Flex(1),
+                                  x.Column()
+                                      .Text("City")
+                                      .DataIndex("City")
+                                      .Width(80),
+                                  x.Column()
+                                      .Text("State")
+                                      .DataIndex("State")
+                                      .Width(50),
+                                  x.Column()
+                                      .Text("ZIP")
+                                      .DataIndex("ZIP")
+                                      .Width(70)
                               )
                       )
                   

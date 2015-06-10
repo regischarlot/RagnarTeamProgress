@@ -25,6 +25,7 @@ namespace TeamProgress.Models
         public List<Runner> Runners;
         public List<LegRunner> LegRunners;
         public List<Pair> RunnerTypes;
+        public List<Exchange> Exchanges;
         public Team TeamDefinition;
         public String DisplayRunner;
         public String DisplayTeam;
@@ -42,6 +43,7 @@ namespace TeamProgress.Models
             TeamDefinition = new Team();
             DisplayRunner = String.Empty;
             DisplayTeam = String.Empty;
+            Exchanges = new List<Exchange>();
         }
 
         /// <summary>
@@ -65,6 +67,7 @@ namespace TeamProgress.Models
                     RunnerTypes.Add(new Pair((int) eType.Driver, "Driver"));
                     //
                     // A. Team
+                    //
                     using (SqlCommand myCommand = new SqlCommand(string.Format("SELECT [TeamID],[Name] FROM [Ragnar].[dbo].[Team] WHERE [TeamID]={0}", team), conn))
                     {
                         using (SqlDataReader rdr = myCommand.ExecuteReader())
@@ -77,7 +80,8 @@ namespace TeamProgress.Models
                         }
                     }
                     //
-                    // A. Runners
+                    // B. Runners
+                    //
                     using (SqlCommand myCommand = new SqlCommand(string.Format("SELECT [RunnerID],[Name],[DisplayName],[Pace],[Cell],[Email],[EmergencyContact], [Type] FROM [Ragnar].[dbo].[Runner] order by Name", team), conn))
                     {
                         SqlDataReader rdr = myCommand.ExecuteReader();
@@ -91,7 +95,6 @@ namespace TeamProgress.Models
                     //
                     // C. Leg Runners
                     //
-                    // A. Runners
                     using (SqlCommand myCommand = new SqlCommand(string.Format("SELECT " +
                                                                                "    A.[LegID], " +
                                                                                "    A.[Order], " +
@@ -206,6 +209,16 @@ namespace TeamProgress.Models
                                 string.Format("<a href=\"https://www.ragnarrelay.com/race/chicago/legs/{0}\" target=\"_blank\">Leg {0}</a>", ++cnt)));
                             prev_rde = rde;
                         }
+                        rdr.Close();
+                    }
+                    //
+                    // D. Exchanges
+                    //
+                    using (SqlCommand myCommand = new SqlCommand("SELECT [ID],[Name],[Address],[City],[State],[ZIP],[Van] FROM [Ragnar].[dbo].[Exchanges] order by ID", conn))
+                    {
+                        SqlDataReader rdr = myCommand.ExecuteReader();
+                        while (rdr.Read())
+                            Exchanges.Add(new Exchange(rdr["ID"].ToInt32(), rdr["Name"].ToString(), rdr["Address"].ToString(), rdr["City"].ToString(), rdr["State"].ToString(), rdr["ZIP"].ToString(), rdr["Van"].ToInt32()));
                         rdr.Close();
                     }
 

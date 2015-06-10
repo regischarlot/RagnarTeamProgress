@@ -148,6 +148,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\DataAccess.cs" />
+    <Compile Include="Models\Exchange.cs" />
     <Compile Include="Models\Extensions\NullableBoolExtension.cs" />
     <Compile Include="Models\Extensions\NullableDateTimeExtensions.cs" />
     <Compile Include="Models\Extensions\NullableIntExtensions.cs" />
