@@ -335,6 +335,12 @@
                 .Type(ModelFieldType.String),
             x.ModelField()
                 .Name("Van")
+                .Type(ModelFieldType.String),
+            x.ModelField()
+                .Name("GoogleMapLink")
+                .Type(ModelFieldType.String),
+            x.ModelField()
+                .Name("FollowingLeg")
                 .Type(ModelFieldType.String)
         )
     )
@@ -590,20 +596,12 @@
                                       .Flex(1),
                                   x.Column()
                                       .Text("Address")
-                                      .DataIndex("Address")
-                                      .Flex(1),
+                                      .DataIndex("GoogleMapLink")
+                                      .Flex(2),
                                   x.Column()
-                                      .Text("City")
-                                      .DataIndex("City")
-                                      .Width(80),
-                                  x.Column()
-                                      .Text("State")
-                                      .DataIndex("State")
-                                      .Width(50),
-                                  x.Column()
-                                      .Text("ZIP")
-                                      .DataIndex("ZIP")
-                                      .Width(70)
+                                      .Text("Leg")
+                                      .DataIndex("FollowingLeg")
+                                      .Width(100)
                               )
                       )
                   
