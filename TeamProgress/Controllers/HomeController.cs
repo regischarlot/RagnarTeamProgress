@@ -25,10 +25,10 @@ namespace TeamProgress.Controllers
 
         //
         // Ajax callback: EditLegRunner()
-        public DirectResult EditLegRunner(int teamId, int legId, int? legRunnerId, string field, string value)
+        public DirectResult EditLegRunner(int legId, int? legRunnerId, string field, string value)
         {
             using (Status p = new Status())
-                p.Update(teamId, legId, legRunnerId, field, value);
+                p.Update(legId, legRunnerId, field, value);
             return this.Direct();
         }
 
@@ -45,10 +45,10 @@ namespace TeamProgress.Controllers
         ///     AjaxData()
         /// 
         /// </summary>
-        public StoreResult AjaxData(int team)
+        public StoreResult AjaxData()
         {
             Status p = new Status();
-            p.Load(team);
+            p.Load(1);
             return new StoreResult { Data = p, Total = 1 };
         }
 

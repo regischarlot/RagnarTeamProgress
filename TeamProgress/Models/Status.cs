@@ -244,7 +244,7 @@ namespace TeamProgress.Models
         ///    Update()
         ///
         /// </summary>
-        public Boolean Update(int teamId, int legId, int? legRunnerId, string field, string value)
+        public Boolean Update(int legId, int? legRunnerId, string field, string value)
         {
             try
             {
@@ -273,7 +273,7 @@ namespace TeamProgress.Models
                         s = "update [Ragnar].[dbo].[LegRunner] set " + field + " = @value where LegRunnerID = @legrunnerid";
                     using (SqlCommand qry = new SqlCommand(s, conn))
                     {
-                        qry.Parameters.Add("@teamid", SqlDbType.Int).Value = teamId;
+                        qry.Parameters.Add("@teamid", SqlDbType.Int).Value = 1;
                         qry.Parameters.Add("@legid", SqlDbType.Int).Value = legId;
                         qry.Parameters.Add("@legrunnerid", SqlDbType.Int).Value = (object)legRunnerId ?? DBNull.Value;
                         if (field.Equals("StartTime") || field.Equals("EndTime"))
