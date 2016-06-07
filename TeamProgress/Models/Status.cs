@@ -206,7 +206,7 @@ namespace TeamProgress.Models
                                 rdr["RunnerName"].ToString(),
                                 rdr["RunnerPace"].ToString(),
                                 rdr["RunnerCell"].ToString(),
-                                string.Format("<a href=\"https://www.ragnarrelay.com/race/chicago/legs/{0}\" target=\"_blank\">Leg {0}</a>", ++cnt)));
+                                $"Leg {++cnt}"));
                             prev_rde = rde;
                         }
                         rdr.Close();
