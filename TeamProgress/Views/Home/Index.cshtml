@@ -366,6 +366,7 @@
                     .AutoScroll(false)
                     .Resizable(true)
                     .ID("grdStatus")
+                    .Height(1200)
                     .StoreID("storeLegRunners")
                     .ViewConfig(
                         x.GridView()
@@ -379,7 +380,7 @@
                         x.Column()
                             .Sortable(false)
                             .Text("Map")
-                            .Width(60)
+                            .Width(85)
                             .Align(Alignment.Center)
                             .DataIndex("LegMap"),
                         x.Column()
@@ -398,7 +399,7 @@
                             .Text("Runner")
                             .Flex(1)
                             .Sortable(false)
-                            .MinWidth(120)
+                            .MinWidth(150)
                             .DataIndex("RunnerID")
                             .Renderer("RendererRunner")
                             .Editor(
