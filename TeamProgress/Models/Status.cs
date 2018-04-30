@@ -102,16 +102,21 @@ namespace TeamProgress.Models
                                                                                "    A.[Distance], " +
                                                                                "    A.[Van], " +
                                                                                "    A.[Difficulty], " +
-                                                                               "    B.[RunnerID], " +
-                                                                               "    C.[Name] RunnerName, " +
-                                                                               "    C.[Pace] RunnerPace, " +
-                                                                               "    C.[Cell] RunnerCell, " +
                                                                                "    B.[StartTime], " +
-                                                                               "    B.[EndTime] " +
+                                                                               "    B.[EndTime], " +
+                                                                               "    B.[RunnerID] Runner1ID, " +
+                                                                               "    C.[Name] Runner1Name, " +
+                                                                               "    C.[Pace] Runner1Pace, " +
+                                                                               "    C.[Cell] Runner1Cell, " +
+                                                                               "    B.[Runner2ID] Runner2ID, " +
+                                                                               "    D.[Name] Runner2Name, " +
+                                                                               "    D.[Pace] Runner2Pace, " +
+                                                                               "    D.[Cell] Runner2Cell " +
                                                                                "FROM  " +
                                                                                "    [Ragnar].[dbo].[Leg] A " +
                                                                                "    left outer join [Ragnar].[dbo].[LegRunner] B on (A.LegID = b.LegID and b.TeamID={0}) " +
                                                                                "    left outer join [Ragnar].[dbo].[Runner] C on (B.RunnerID = C.RunnerID) " +
+                                                                               "    left outer join [Ragnar].[dbo].[Runner] D on (B.Runner2ID = D.RunnerID) " +
                                                                                "order by " +
                                                                                "    A.[Order]", team), conn))
                     {
@@ -125,8 +130,9 @@ namespace TeamProgress.Models
                             double dist = rdr["Distance"].ToDouble();
                             // Runner Pace
                             double pace = defaultpace;
-                            int? runner = rdr["RunnerID"].ToNullableInt32();
-                            Runner p = getRunner(runner);
+                            int? runner1 = rdr["Runner1ID"].ToNullableInt32();
+                            int? runner2 = rdr["Runner2ID"].ToNullableInt32();
+                            Runner p = getRunner(runner1);
                             if (p != null)
                                 pace = p.Pace != 0 ? p.Pace : defaultpace;
                             // Read dates well
@@ -180,33 +186,39 @@ namespace TeamProgress.Models
                                                               "</table>",
                                     new object[]
                                     {
-                                        rdr["RunnerName"].ToString(), rde.ToDateTime().ToString("hh:mm tt"),
-                                        rdr["RunnerCell"].ToString()
+                                        rdr["Runner1Name"].ToString(), rde.ToDateTime().ToString("hh:mm tt"),
+                                        rdr["Runner1Cell"].ToString()
                                     });
                             //
                             // Display Team
                             DisplayTeam = string.Format("<table height='100%' width='100%'><tr><td style=\"text-align:center; vertical-align:middle; font-size:20pt; \">{0}</td></tr></table>", new object[] {TeamDefinition.Name});
                             //
                             // Add leg runner
-                            LegRunners.Add(new LegRunner(
-                                team,
-                                rdr["LegID"].ToInt32(),
-                                rdr["Order"].ToInt32(),
-                                rdr["LegRunnerID"].ToNullableInt32(),
-                                runner,
-                                dist,
-                                rdr["Van"].ToInt32(),
-                                rdr["Difficulty"].ToInt32(),
-                                rds,
-                                rds_est,
-                                rde,
-                                rde_est,
-                                legtime,
-                                truepace,
-                                rdr["RunnerName"].ToString(),
-                                rdr["RunnerPace"].ToString(),
-                                rdr["RunnerCell"].ToString(),
-                                $"Leg {++cnt}"));
+                            LegRunners.Add(new LegRunner
+                            {
+                                StartTime = rds,
+                                EndTime = rde,
+                                Runner1ID = runner1,
+                                Runner2ID = runner2,
+                                LegRunnerID = rdr["LegRunnerID"].ToNullableInt32(),
+                                TeamID = team,
+                                LegID = rdr["LegID"].ToInt32(),
+                                Order = rdr["Order"].ToInt32(),
+                                Van = rdr["Van"].ToInt32(),
+                                Distance = dist,
+                                Difficulty = rdr["Difficulty"].ToInt32(),
+                                StartTimeEstimated = rds_est,
+                                EndTimeEstimated = rde_est,
+                                LegTime = legtime,
+                                TruePace = truepace,
+                                Runner1Name = rdr["Runner1Name"].ToString(),
+                                Runner1Pace = rdr["Runner1Pace"].ToString(),
+                                Runner1Cell = rdr["Runner1Cell"].ToString(),
+                                Runner2Name = rdr["Runner2Name"].ToString(),
+                                Runner2Pace = rdr["Runner2Pace"].ToString(),
+                                Runner2Cell = rdr["Runner2Cell"].ToString(),
+                                LegMap = $"Leg {++cnt}"
+                            });
                             prev_rde = rde;
                         }
                         rdr.Close();
@@ -255,10 +267,12 @@ namespace TeamProgress.Models
                     if (!value.Equals("null"))
                         d = DateTime.ParseExact(value.Replace("\"", ""), "yyyy-MM-dd'T'HH:mm:ss", CultureInfo.InvariantCulture);
                 }
-                else if (field.Equals("RunnerID"))
+                else if (field.Equals("Runner1ID") || field.Equals("Runner2ID"))
                 {
                     if (!value.Equals("null"))
                         r = Int32.Parse(value, CultureInfo.InvariantCulture);
+                    if (field.Equals("Runner1ID"))
+                        field = "RunnerID";
                 }
                 //
                 // B. Update database
@@ -278,7 +292,7 @@ namespace TeamProgress.Models
                         qry.Parameters.Add("@legrunnerid", SqlDbType.Int).Value = (object)legRunnerId ?? DBNull.Value;
                         if (field.Equals("StartTime") || field.Equals("EndTime"))
                             qry.Parameters.Add("@value", SqlDbType.DateTime).Value = (object)d ?? DBNull.Value;
-                        else if (field.Equals("RunnerID"))
+                        else if (field.Equals("RunnerID") || field.Equals("Runner1ID") || field.Equals("Runner2ID"))
                             qry.Parameters.Add("@value", SqlDbType.Int).Value = (object)r ?? DBNull.Value;
                         qry.ExecuteNonQuery();
                     }

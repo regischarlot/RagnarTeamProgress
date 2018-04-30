@@ -1,24 +1,16 @@
-﻿using System.Web.Mvc;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
 using Ext.Net.MVC;
+using System.Web.Mvc;
 using TeamProgress.Models;
 
 namespace TeamProgress.Controllers
 {
     public class HomeController : Controller
     {
-
-
-        //
-        // GET: /Home/Index/
         public ActionResult Index()
-        {
-            return View();
-        }
-
-        //
-        // POST: /Home/Index/5
-        [HttpPost]
-        public ActionResult Index(FormCollection collection)
         {
             return View();
         }
@@ -40,7 +32,7 @@ namespace TeamProgress.Controllers
                 p.Update(id, name, displayname, pace, cell, email, emergencycontact, type);
             return this.Direct();
         }
-        
+
         /// <summary>
         ///     AjaxData()
         /// 
@@ -51,7 +43,5 @@ namespace TeamProgress.Controllers
             p.Load(1);
             return new StoreResult { Data = p, Total = 1 };
         }
-
-
     }
 }

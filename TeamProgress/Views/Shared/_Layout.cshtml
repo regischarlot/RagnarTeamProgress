@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using Ext.Net.MVC
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -8,10 +9,10 @@
     @Scripts.Render("~/bundles/modernizr")
 </head>
 <body>
-    @Html.X().ResourceManager()
-    @RenderBody()
+@Html.X().ResourceManager()
+@RenderBody()
 
-    @Scripts.Render("~/bundles/jquery")
-    @RenderSection("scripts", required: false)
+@Scripts.Render("~/bundles/jquery")
+@RenderSection("scripts", required: false)
 </body>
 </html>

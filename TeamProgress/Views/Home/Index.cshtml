@@ -1,14 +1,29 @@
-﻿@{
+﻿@using Ext.Net
+@using Ext.Net.MVC
+@{
     ViewBag.Title = "Ragnar Tracker";
     var x = Html.X();
 }
 
 
 <style>
-    .ragnarVan1 {background: white; }
-    .ragnarVan2 {background: rgb(203, 255, 202); }
-    .grayfont   {color: gray; font-weight: normal; }
-    .darkfont   {color: black; font-weight: bold; }
+    .ragnarVan1 {
+        background: white;
+    }
+
+    .ragnarVan2 {
+        background: rgb(203, 255, 202);
+    }
+
+    .grayfont {
+        color: gray;
+        font-weight: normal;
+    }
+
+    .darkfont {
+        color: black;
+        font-weight: bold;
+    }
 </style>
 
 <script type="text/javascript">
@@ -41,9 +56,19 @@
 
     //
     // RendererRunner
-    var RendererRunner = function (value, metadata, record, rowIndex, colIndex, store) {
+    var RendererRunner1 = function (value, metadata, record, rowIndex, colIndex, store) {
         try {
-            return record.data.RunnerName;
+            return record.data.Runner1Name;
+        } catch (e) {
+            return "";
+        }
+    };
+
+    //
+    // RendererRunner
+    var RendererRunner2 = function (value, metadata, record, rowIndex, colIndex, store) {
+        try {
+            return record.data.Runner2Name;
         } catch (e) {
             return "";
         }
@@ -134,7 +159,7 @@
     }
 
     //
-    // getEndTimeCellColor 
+    // getEndTimeCellColor
     var getEndTimeCellColor = function (value, meta, record) {
         if (record.data.EndTimeEstimated == true)
             meta.tdCls = 'grayfont';
@@ -170,7 +195,7 @@
 
                 } catch (e) {
 
-                } 
+                }
                 Ext.net.Mask.hide();
             },
             failure: function (result) {
@@ -189,365 +214,397 @@
 </script>
 
 @(x.Store()
-    .ID("storeRunners")
-    .Model(x.Model()
-        .IDProperty("Id")
-        .Fields(
-            x.ModelField()
-                .Name("Id")
-                .Type(ModelFieldType.Int),
-            x.ModelField()
-                .Name("Name")
-                .Type(ModelFieldType.String),
-            x.ModelField()
-                .Name("Pace")
-                .Type(ModelFieldType.Float),
-            x.ModelField()
-                .Name("Cell")
-                .Type(ModelFieldType.String),
-            x.ModelField()
-                .Name("Email")
-                .Type(ModelFieldType.String),
-            x.ModelField()
-                .Name("EmergencyContact")
-                .Type(ModelFieldType.String)
+        .ID("storeRunners")
+        .Model(x.Model()
+            .IDProperty("Id")
+            .Fields(
+                x.ModelField()
+                    .Name("Id")
+                    .Type(ModelFieldType.Int),
+                x.ModelField()
+                    .Name("Name")
+                    .Type(ModelFieldType.String),
+                x.ModelField()
+                    .Name("Pace")
+                    .Type(ModelFieldType.Float),
+                x.ModelField()
+                    .Name("Cell")
+                    .Type(ModelFieldType.String),
+                x.ModelField()
+                    .Name("Email")
+                    .Type(ModelFieldType.String),
+                x.ModelField()
+                    .Name("EmergencyContact")
+                    .Type(ModelFieldType.String)
+            )
         )
-    )
 )
 
 @(x.Store()
-    .ID("storeLegRunners")
-    .Model(x.Model()
-        .IDProperty("LegID")
-        .Fields(
-            x.ModelField()
-                .Name("TeamID")
-                .Type(ModelFieldType.Int),
-            x.ModelField()
-                .Name("LegID")
-                .Type(ModelFieldType.Int),
-            x.ModelField()
-                .Name("Order")
-                .Type(ModelFieldType.Int),
-            x.ModelField()
-                .Name("LegRunnerID")
-                .Type(ModelFieldType.Auto),
-            x.ModelField()
-                .Name("RunnerID")
-                .Type(ModelFieldType.Auto),
-            x.ModelField()
-                .Name("RunnerName")
-                .Type(ModelFieldType.String),
-            x.ModelField()
-                .Name("RunnerPace")
-                .Type(ModelFieldType.String),
-            x.ModelField()
-                .Name("RunnerCell")
-                .Type(ModelFieldType.String),
-            x.ModelField()
-                .Name("Van")
-                .Type(ModelFieldType.Int),
-            x.ModelField()
-                .Name("Distance")
-                .Type(ModelFieldType.Float),
-            x.ModelField()
-                .Name("Difficulty")
-                .Type(ModelFieldType.Int),
-            x.ModelField()
-                .Name("StartTime")
-                .Type(ModelFieldType.Date),
-            x.ModelField()
-                .Name("EndTime")
-                .Type(ModelFieldType.Date),
-            x.ModelField()
-                .Name("LegTime")
-                .Type(ModelFieldType.String),
-            x.ModelField()
-                .Name("TruePace")
-                .Type(ModelFieldType.String),
-            x.ModelField()
-                .Name("LegMap")
-                .Type(ModelFieldType.String)
+        .ID("storeLegRunners")
+        .Model(x.Model()
+            .IDProperty("LegID")
+            .Fields(
+                x.ModelField()
+                    .Name("TeamID")
+                    .Type(ModelFieldType.Int),
+                x.ModelField()
+                    .Name("LegID")
+                    .Type(ModelFieldType.Int),
+                x.ModelField()
+                    .Name("Order")
+                    .Type(ModelFieldType.Int),
+                x.ModelField()
+                    .Name("LegRunnerID")
+                    .Type(ModelFieldType.Auto),
+                x.ModelField()
+                    .Name("Runner1ID")
+                    .Type(ModelFieldType.Auto),
+                x.ModelField()
+                    .Name("Runner1Name")
+                    .Type(ModelFieldType.String),
+                x.ModelField()
+                    .Name("Runner1Pace")
+                    .Type(ModelFieldType.String),
+                x.ModelField()
+                    .Name("Runner1Cell")
+                    .Type(ModelFieldType.String),
+                x.ModelField()
+                    .Name("Runner2ID")
+                    .Type(ModelFieldType.Auto),
+                x.ModelField()
+                    .Name("Runner2Name")
+                    .Type(ModelFieldType.String),
+                x.ModelField()
+                    .Name("Runner2Pace")
+                    .Type(ModelFieldType.String),
+                x.ModelField()
+                    .Name("Runner2Cell")
+                    .Type(ModelFieldType.String),
+                x.ModelField()
+                    .Name("Van")
+                    .Type(ModelFieldType.Int),
+                x.ModelField()
+                    .Name("Distance")
+                    .Type(ModelFieldType.Float),
+                x.ModelField()
+                    .Name("Difficulty")
+                    .Type(ModelFieldType.Int),
+                x.ModelField()
+                    .Name("StartTime")
+                    .Type(ModelFieldType.Date),
+                x.ModelField()
+                    .Name("EndTime")
+                    .Type(ModelFieldType.Date),
+                x.ModelField()
+                    .Name("LegTime")
+                    .Type(ModelFieldType.String),
+                x.ModelField()
+                    .Name("TruePace")
+                    .Type(ModelFieldType.String),
+                x.ModelField()
+                    .Name("LegMap")
+                    .Type(ModelFieldType.String)
+            )
         )
-    )
 )
 
 
 @(x.Store()
-    .ID("storeTypes")
-    .Model(x.Model()
-        .IDProperty("Id")
-        .Fields(
-            x.ModelField()
-                .Name("Id")
-                .Type(ModelFieldType.Int),
-            x.ModelField()
-                .Name("Name")
-                .Type(ModelFieldType.String)
+        .ID("storeTypes")
+        .Model(x.Model()
+            .IDProperty("Id")
+            .Fields(
+                x.ModelField()
+                    .Name("Id")
+                    .Type(ModelFieldType.Int),
+                x.ModelField()
+                    .Name("Name")
+                    .Type(ModelFieldType.String)
+            )
         )
-    )
 )
 
 @(x.Store()
-    .ID("storeExchanges")
-    .Model(x.Model()
-        .IDProperty("Id")
-        .Fields(
-            x.ModelField()
-                .Name("Id")
-                .Type(ModelFieldType.Int),
-            x.ModelField()
-                .Name("Name")
-                .Type(ModelFieldType.String),
-            x.ModelField()
-                .Name("Address")
-                .Type(ModelFieldType.String),
-            x.ModelField()
-                .Name("City")
-                .Type(ModelFieldType.String),
-            x.ModelField()
-                .Name("State")
-                .Type(ModelFieldType.String),
-            x.ModelField()
-                .Name("ZIP")
-                .Type(ModelFieldType.String),
-            x.ModelField()
-                .Name("Van")
-                .Type(ModelFieldType.String),
-            x.ModelField()
-                .Name("GoogleMapLink")
-                .Type(ModelFieldType.String),
-            x.ModelField()
-                .Name("FollowingLeg")
-                .Type(ModelFieldType.String)
+        .ID("storeExchanges")
+        .Model(x.Model()
+            .IDProperty("Id")
+            .Fields(
+                x.ModelField()
+                    .Name("Id")
+                    .Type(ModelFieldType.Int),
+                x.ModelField()
+                    .Name("Name")
+                    .Type(ModelFieldType.String),
+                x.ModelField()
+                    .Name("Address")
+                    .Type(ModelFieldType.String),
+                x.ModelField()
+                    .Name("City")
+                    .Type(ModelFieldType.String),
+                x.ModelField()
+                    .Name("State")
+                    .Type(ModelFieldType.String),
+                x.ModelField()
+                    .Name("ZIP")
+                    .Type(ModelFieldType.String),
+                x.ModelField()
+                    .Name("Van")
+                    .Type(ModelFieldType.String),
+                x.ModelField()
+                    .Name("GoogleMapLink")
+                    .Type(ModelFieldType.String),
+                x.ModelField()
+                    .Name("FollowingLeg")
+                    .Type(ModelFieldType.String)
+            )
         )
-    )
 )
 
 
 @(x.TaskManager()
-    .Tasks(
-        x.Task()
-            .TaskID("RegularRefresh")
-            .Interval(5000)
-    )
+        .Tasks(
+            x.Task()
+                .TaskID("RegularRefresh")
+                .Interval(5000)
+        )
 )
 
 
 @(x.Panel()
-    .Items(
+        .Items(
 
-        x.Panel()
-            .Layout(LayoutType.HBox)
-            .BodyPadding(5)
-            .Defaults(x.Parameter().Name("margin").Value("0 5 0 0").Mode(ParameterMode.Value))
-            .LayoutConfig(new HBoxLayoutConfig { Align = HBoxAlign.Middle, Pack = BoxPack.End })
+            x.Panel()
+                .Layout(LayoutType.HBox)
+                .BodyPadding(5)
+                .Defaults(x.Parameter().Name("margin").Value("0 5 0 0").Mode(ParameterMode.Value))
+                .LayoutConfig(new HBoxLayoutConfig { Align = HBoxAlign.Middle, Pack = BoxPack.End })
 
-            .Items(
-                x.Button()
-                    .Region(Region.East)
-                    .Icon(Icon.ArrowRefresh)
-                    .Handler("RefreshAll"),
-                x.Panel()
-                    .PaddingSpec("0 20 0 10")
-                    .ID("RunnerDisplay"),
-                x.Component().Flex(1),
-                x.Panel()
-                    .PaddingSpec("0 0 0 0")
-                    .ID("TeamDisplay")
-            ),
+                .Items(
+                    x.Button()
+                        .Region(Region.East)
+                        .Icon(Icon.ArrowRefresh)
+                        .Handler("RefreshAll"),
+                    x.Panel()
+                        .PaddingSpec("0 20 0 10")
+                        .ID("RunnerDisplay"),
+                    x.Component().Flex(1),
+                    x.Panel()
+                        .PaddingSpec("0 0 0 0")
+                        .ID("TeamDisplay")
+                ),
 
-        x.TabPanel()
-            .TabPosition(TabPosition.Left)
-            .Items(
-                x.GridPanel()
-                    .Title("Status")
-                    .Region(Region.Center)
-                    .AutoScroll(false)
-                    .Resizable(true)
-                    .ID("grdStatus")
-                    .Height(1200)
-                    .StoreID("storeLegRunners")
-                    .ViewConfig(
-                        x.GridView()
-                            .GetRowClass(f => f.Fn = "getRowClass")
-                    )
-                    .Plugins(
-                        x.CellEditing()
-                            .Listeners(ls => ls.Edit.Fn = "editGridStatusCallback")
-                    )
-                    .ColumnModel(
-                        x.Column()
-                            .Sortable(false)
-                            .Text("Map")
-                            .Width(85)
-                            .Align(Alignment.Center)
-                            .DataIndex("LegMap"),
-                        x.Column()
-                            .Text("Distance")
-                            .DataIndex("Distance")
-                            .Sortable(false)
-                            .Align(Alignment.Center)
-                            .Width(80),
-                        x.Column()
-                            .Text("Difficulty")
-                            .DataIndex("Difficulty")
-                            .Sortable(false)
-                            .Renderer("return imgDifficulty(value);")
-                            .Width(100),
-                        x.Column()
-                            .Text("Runner")
-                            .Flex(1)
-                            .Sortable(false)
-                            .MinWidth(150)
-                            .DataIndex("RunnerID")
-                            .Renderer("RendererRunner")
-                            .Editor(
-                                x.ComboBox()
-                                    .SelectOnTab(true)
-                                    .QueryMode(DataLoadMode.Local)
-                                    .StoreID("storeRunners")
-                                    .ID("grdStatusRunnerCombo")
-                                    .ForceSelection(true)
-                                    .TriggerAction(TriggerAction.All)
-                                    .DisplayField("Name")
-                                    .ValueField("Id")
-                                    .EmptyText("** Unassigned **")
-                                    .ValueNotFoundText("** Unassigned **")
-                            ),
-                        x.Column()
-                            .Text("Cell Phone")
-                            .Sortable(false)
-                            .Width(120)
-                            .DataIndex("RunnerCell"),
-                        x.Column()
-                            .Text("Pace")
-                            .Sortable(false)
-                            .Width(50)
-                            .DataIndex("RunnerPace"),
-                        x.DateColumn()
-                            .Text("Leg Start")
-                            .Sortable(false)
-                            .DataIndex("StartTime")
-                            .Width(100)
-                            .Format("h:mm A")
-                            .Editor(
-                                x.TimeField()
-                            )
-                            .Renderer("getStartTimeCellColor"),
-                        x.DateColumn()
-                            .Text("Leg End")
-                            .Sortable(false)
-                            .DataIndex("EndTime")
-                            .Format("h:mm A")
-                            .Width(100)
-                            .Editor(
-                                x.TimeField()
-                            )
-                            .Renderer("getEndTimeCellColor"),
-                        x.Column()
-                            .Sortable(false)
-                            .Text("Leg Time")
-                            .Width(100)
-                            .DataIndex("LegTime"),
-                        x.Column()
-                            .Sortable(false)
-                            .Text("Leg Pace")
-                            .Width(100)
-                            .DataIndex("TruePace")
-                            .Renderer("RendererTime")
-                    ),
+            x.TabPanel()
+                .TabPosition(TabPosition.Left)
+                .Items(
+                    x.GridPanel()
+                        .Title("Status")
+                        .Region(Region.Center)
+                        .AutoScroll(false)
+                        .Resizable(true)
+                        .ID("grdStatus")
+                        .Height(1200)
+                        .StoreID("storeLegRunners")
+                        .ViewConfig(
+                            x.GridView()
+                                .GetRowClass(f => f.Fn = "getRowClass")
+                        )
+                        .Plugins(
+                            x.CellEditing()
+                                .Listeners(ls => ls.Edit.Fn = "editGridStatusCallback")
+                        )
+                        .ColumnModel(
+                            x.Column()
+                                .Sortable(false)
+                                .Text("Map")
+                                .Width(85)
+                                .Align(Alignment.Center)
+                                .DataIndex("LegMap"),
+                            x.Column()
+                                .Text("Distance")
+                                .DataIndex("Distance")
+                                .Sortable(false)
+                                .Align(Alignment.Center)
+                                .Width(80),
+                            x.Column()
+                                .Text("Difficulty")
+                                .DataIndex("Difficulty")
+                                .Sortable(false)
+                                .Renderer("return imgDifficulty(value);")
+                                .Width(100),
+                            x.Column()
+                                .Text("Runner 1")
+                                .Flex(1)
+                                .Sortable(false)
+                                .MinWidth(150)
+                                .DataIndex("Runner1ID")
+                                .Renderer("RendererRunner1")
+                                .Editor(
+                                    x.ComboBox()
+                                        .SelectOnTab(true)
+                                        .QueryMode(DataLoadMode.Local)
+                                        .StoreID("storeRunners")
+                                        .ID("grdStatusRunner1Combo")
+                                        .ForceSelection(true)
+                                        .TriggerAction(TriggerAction.All)
+                                        .DisplayField("Name")
+                                        .ValueField("Id")
+                                        .EmptyText("** Unassigned **")
+                                        .ValueNotFoundText("** Unassigned **")
+                                ),
+                            x.Column()
+                                .Text("Runner 2")
+                                .Flex(1)
+                                .Sortable(false)
+                                .MinWidth(150)
+                                .DataIndex("Runner2ID")
+                                .Renderer("RendererRunner2")
+                                .Editor(
+                                    x.ComboBox()
+                                        .SelectOnTab(true)
+                                        .QueryMode(DataLoadMode.Local)
+                                        .StoreID("storeRunners")
+                                        .ID("grdStatusRunner2Combo")
+                                        .ForceSelection(true)
+                                        .TriggerAction(TriggerAction.All)
+                                        .DisplayField("Name")
+                                        .ValueField("Id")
+                                        .EmptyText("** Unassigned **")
+                                        .ValueNotFoundText("** Unassigned **")
+                                ),
+                            x.Column()
+                                .Text("Cell Runner 1")
+                                .Sortable(false)
+                                .Width(120)
+                                .DataIndex("Runner1Cell"),
+                            x.Column()
+                                .Text("Pace")
+                                .Sortable(false)
+                                .Width(50)
+                                .DataIndex("Runner1Pace"),
+                            x.DateColumn()
+                                .Text("Leg Start")
+                                .Sortable(false)
+                                .DataIndex("StartTime")
+                                .Width(100)
+                                .Format("h:mm A")
+                                .Editor(
+                                    x.TimeField()
+                                )
+                                .Renderer("getStartTimeCellColor"),
+                            x.DateColumn()
+                                .Text("Leg End")
+                                .Sortable(false)
+                                .DataIndex("EndTime")
+                                .Format("h:mm A")
+                                .Width(100)
+                                .Editor(
+                                    x.TimeField()
+                                )
+                                .Renderer("getEndTimeCellColor"),
+                            x.Column()
+                                .Sortable(false)
+                                .Text("Leg Time")
+                                .Width(100)
+                                .DataIndex("LegTime"),
+                            x.Column()
+                                .Sortable(false)
+                                .Text("Leg Pace")
+                                .Width(100)
+                                .DataIndex("TruePace")
+                                .Renderer("RendererTime")
+                        ),
 
-                x.GridPanel()
-                    .Title("Runners")
-                    .Region(Region.Center)
-                    .AutoScroll(false)
-                    .Resizable(true)
-                    .ID("grdRunners")
-                    .StoreID("storeRunners")
-                    .Plugins(
-                        x.CellEditing()
-                            .Listeners(ls => ls.Edit.Fn = "editGridRunnersCallback")
-                    )
-                    .ColumnModel(
-                        x.Column()
-                            .Text("Runner")
-                            .DataIndex("Name")
-                            .Flex(2)
-                            .Editor(
-                                x.TextField()
-                            ),
-                        x.Column()
-                            .Text("Display Name")
-                            .DataIndex("DisplayName")
-                            .Flex(1)
-                            .Editor(
-                                x.TextField()
-                            ),
-                        x.Column()
-                            .Text("Pace")
-                            .DataIndex("Pace")
-                            .Width(100)
-                            .Editor(
-                                x.NumberField()
-                            ),
-                        x.Column()
-                            .Text("Role")
-                            .DataIndex("Type")
-                            .Width(100)
-                            .Editor(
-                                x.ComboBox()
-                                    .ID("grdRunnersTypeCombo")
-                                    .SelectOnTab(true)
-                                    .StoreID("storeTypes")
-                                    .QueryMode(DataLoadMode.Local)
-                                    .ForceSelection(true)
-                                    .TriggerAction(TriggerAction.All)
-                                    .DisplayField("Name")
-                                    .ValueField("Id")
-                                    .EmptyText("** Unassigned **")
-                                    .ValueNotFoundText("** Unassigned **")
-                            ),
-                        x.Column()
-                            .Text("Cell Phone")
-                            .DataIndex("Cell")
-                            .Width(150)
-                            .Editor(
-                                x.TextField()
-                            ),
-                        x.Column()
-                            .Text("Emergency Contact")
-                            .DataIndex("EmergencyContact")
-                            .Flex(2)
-                            .Editor(
-                                x.TextField()
-                            )
-                    ),
-                x.GridPanel()
-                    .Title("Exchanges")
-                    .Region(Region.Center)
-                    .AutoScroll(true)
-                    .Resizable(false)
-                    .ID("grdExchanges")
-                    .StoreID("storeExchanges")
-                    .ViewConfig(
-                        x.GridView()
-                            .GetRowClass(f => f.Fn = "getRowClass")
-                    )
-                    .ColumnModel(
-                        x.Column()
-                            .Text("#")
-                            .DataIndex("Id")
-                            .Width(25),
-                        x.Column()
-                            .Text("Location")
-                            .DataIndex("Name")
-                            .Flex(1),
-                        x.Column()
-                            .Text("Address")
-                            .DataIndex("GoogleMapLink")
-                            .Flex(2)
-                    )
+                    x.GridPanel()
+                        .Title("Runners")
+                        .Region(Region.Center)
+                        .AutoScroll(false)
+                        .Resizable(true)
+                        .ID("grdRunners")
+                        .StoreID("storeRunners")
+                        .Plugins(
+                            x.CellEditing()
+                                .Listeners(ls => ls.Edit.Fn = "editGridRunnersCallback")
+                        )
+                        .ColumnModel(
+                            x.Column()
+                                .Text("Runner")
+                                .DataIndex("Name")
+                                .Flex(2)
+                                .Editor(
+                                    x.TextField()
+                                ),
+                            x.Column()
+                                .Text("Display Name")
+                                .DataIndex("DisplayName")
+                                .Flex(1)
+                                .Editor(
+                                    x.TextField()
+                                ),
+                            x.Column()
+                                .Text("Pace")
+                                .DataIndex("Pace")
+                                .Width(100)
+                                .Editor(
+                                    x.NumberField()
+                                ),
+                            x.Column()
+                                .Text("Role")
+                                .DataIndex("Type")
+                                .Width(100)
+                                .Editor(
+                                    x.ComboBox()
+                                        .ID("grdRunnersTypeCombo")
+                                        .SelectOnTab(true)
+                                        .StoreID("storeTypes")
+                                        .QueryMode(DataLoadMode.Local)
+                                        .ForceSelection(true)
+                                        .TriggerAction(TriggerAction.All)
+                                        .DisplayField("Name")
+                                        .ValueField("Id")
+                                        .EmptyText("** Unassigned **")
+                                        .ValueNotFoundText("** Unassigned **")
+                                ),
+                            x.Column()
+                                .Text("Cell Phone")
+                                .DataIndex("Cell")
+                                .Width(150)
+                                .Editor(
+                                    x.TextField()
+                                ),
+                            x.Column()
+                                .Text("Emergency Contact")
+                                .DataIndex("EmergencyContact")
+                                .Flex(2)
+                                .Editor(
+                                    x.TextField()
+                                )
+                        ),
+                    x.GridPanel()
+                        .Title("Exchanges")
+                        .Region(Region.Center)
+                        .AutoScroll(true)
+                        .Resizable(false)
+                        .ID("grdExchanges")
+                        .StoreID("storeExchanges")
+                        .ViewConfig(
+                            x.GridView()
+                                .GetRowClass(f => f.Fn = "getRowClass")
+                        )
+                        .ColumnModel(
+                            x.Column()
+                                .Text("#")
+                                .DataIndex("Id")
+                                .Width(25),
+                            x.Column()
+                                .Text("Location")
+                                .DataIndex("Name")
+                                .Flex(1),
+                            x.Column()
+                                .Text("Address")
+                                .DataIndex("GoogleMapLink")
+                                .Flex(2)
+                        )
+                )
             )
-        )
 )
