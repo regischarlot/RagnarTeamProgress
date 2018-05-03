@@ -10,7 +10,7 @@ namespace TeamProgress.Models
         {
         }
 
-        public Runner(int id, string name, string displayname, double pace, string cell, string email, string contact, eType type) : base(id, name, displayname, pace, cell, email, contact, type)
+        public Runner(int id, string name, string displayname, double pace, string cell, string email, string contact, TeType type) : base(id, name, displayname, pace, cell, email, contact, type)
         {
         }
 

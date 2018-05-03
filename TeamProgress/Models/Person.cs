@@ -2,7 +2,7 @@
 
 namespace TeamProgress.Models
 {
-    public enum eType { Runner, Driver }
+    public enum TeType { Runner, Driver }
 
     public class Person : DataAccess
     {
@@ -13,13 +13,13 @@ namespace TeamProgress.Models
         public String Cell { get; set; }
         public String Email { get; set; }
         public String EmergencyContact { get; set; }
-        public eType Type { get; set; }
+        public TeType Type { get; set; }
 
         public Person()
         {
         }
 
-        public Person(int id, string name, string displayname, double pace, string cell, string email, string contact, eType type)
+        public Person(int id, string name, string displayname, double pace, string cell, string email, string contact, TeType type)
         {
             Id = id;
             Name = name;
