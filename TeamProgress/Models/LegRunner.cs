@@ -15,6 +15,7 @@ namespace TeamProgress.Models
         public string Runner2Name { get; set; }
         public string Runner2Pace { get; set; }
         public string Runner2Cell { get; set; }
+        public double? Pace { get; set; }
         public string TruePace { get; set; }
 
 

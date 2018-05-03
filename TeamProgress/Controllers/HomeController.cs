@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using Ext.Net.MVC;
+﻿using Ext.Net.MVC;
 using System.Web.Mvc;
 using TeamProgress.Models;
 

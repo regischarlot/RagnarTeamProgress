@@ -285,6 +285,9 @@
                     .Name("Van")
                     .Type(ModelFieldType.Int),
                 x.ModelField()
+                    .Name("Pace")
+                    .Type(ModelFieldType.String),
+                x.ModelField()
                     .Name("Distance")
                     .Type(ModelFieldType.Float),
                 x.ModelField()
@@ -481,7 +484,10 @@
                                 .Text("Pace")
                                 .Sortable(false)
                                 .Width(50)
-                                .DataIndex("Runner1Pace"),
+                                .DataIndex("Pace")
+                                .Editor(
+                                    x.TextField()
+                                ),
                             x.DateColumn()
                                 .Text("Leg Start")
                                 .Sortable(false)

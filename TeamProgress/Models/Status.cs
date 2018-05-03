@@ -68,7 +68,7 @@ namespace TeamProgress.Models
                     //
                     // A. Team
                     //
-                    using (SqlCommand myCommand = new SqlCommand(string.Format("SELECT [TeamID],[Name] FROM [Ragnar].[dbo].[Team] WHERE [TeamID]={0}", team), conn))
+                    using (SqlCommand myCommand = new SqlCommand($"SELECT [TeamID],[Name] FROM [Ragnar].[dbo].[Team] WHERE [TeamID]={team}", conn))
                     {
                         using (SqlDataReader rdr = myCommand.ExecuteReader())
                         {
@@ -82,43 +82,35 @@ namespace TeamProgress.Models
                     //
                     // B. Runners
                     //
-                    using (SqlCommand myCommand = new SqlCommand(string.Format("SELECT [RunnerID],[Name],[DisplayName],[Pace],[Cell],[Email],[EmergencyContact], [Type] FROM [Ragnar].[dbo].[Runner] order by Name", team), conn))
-                    {
-                        SqlDataReader rdr = myCommand.ExecuteReader();
-                        while (rdr.Read())
-                            Runners.Add(new Runner(rdr["RunnerID"].ToInt32(), rdr["Name"].ToString(),
-                                rdr["DisplayName"].ToString(), rdr["Pace"].ToDouble(), rdr["Cell"].ToString(),
-                                rdr["Email"].ToString(), rdr["EmergencyContact"].ToString(),
-                                (eType) rdr["Type"].ToInt32()));
-                        rdr.Close();
-                    }
+                    SetRunners(conn);
                     //
                     // C. Leg Runners
                     //
-                    using (SqlCommand myCommand = new SqlCommand(string.Format("SELECT " +
-                                                                               "    A.[LegID], " +
-                                                                               "    A.[Order], " +
-                                                                               "    B.[LegRunnerID], " +
-                                                                               "    A.[Distance], " +
-                                                                               "    A.[Van], " +
-                                                                               "    A.[Difficulty], " +
-                                                                               "    B.[StartTime], " +
-                                                                               "    B.[EndTime], " +
-                                                                               "    B.[RunnerID] Runner1ID, " +
-                                                                               "    C.[Name] Runner1Name, " +
-                                                                               "    C.[Pace] Runner1Pace, " +
-                                                                               "    C.[Cell] Runner1Cell, " +
-                                                                               "    B.[Runner2ID] Runner2ID, " +
-                                                                               "    D.[Name] Runner2Name, " +
-                                                                               "    D.[Pace] Runner2Pace, " +
-                                                                               "    D.[Cell] Runner2Cell " +
-                                                                               "FROM  " +
-                                                                               "    [Ragnar].[dbo].[Leg] A " +
-                                                                               "    left outer join [Ragnar].[dbo].[LegRunner] B on (A.LegID = b.LegID and b.TeamID={0}) " +
-                                                                               "    left outer join [Ragnar].[dbo].[Runner] C on (B.RunnerID = C.RunnerID) " +
-                                                                               "    left outer join [Ragnar].[dbo].[Runner] D on (B.Runner2ID = D.RunnerID) " +
-                                                                               "order by " +
-                                                                               "    A.[Order]", team), conn))
+                    using (SqlCommand myCommand = new SqlCommand("SELECT " +
+                                                                 "    A.[LegID], " +
+                                                                 "    A.[Order], " +
+                                                                 "    B.[LegRunnerID], " +
+                                                                 "    A.[Distance], " +
+                                                                 "    A.[Van], " +
+                                                                 "    B.[Pace], " +
+                                                                 "    A.[Difficulty], " +
+                                                                 "    B.[StartTime], " +
+                                                                 "    B.[EndTime], " +
+                                                                 "    B.[Runner1ID], " +
+                                                                 "    C.[Name] Runner1Name, " +
+                                                                 "    C.[Pace] Runner1Pace, " +
+                                                                 "    C.[Cell] Runner1Cell, " +
+                                                                 "    B.[Runner2ID], " +
+                                                                 "    D.[Name] Runner2Name, " +
+                                                                 "    D.[Pace] Runner2Pace, " +
+                                                                 "    D.[Cell] Runner2Cell " +
+                                                                 "FROM  " +
+                                                                 "    [Ragnar].[dbo].[Leg] A " +
+                                                                 $"    left outer join [Ragnar].[dbo].[LegRunner] B on (A.LegID = b.LegID and b.TeamID={team}) " +
+                                                                 "    left outer join [Ragnar].[dbo].[Runner] C on (B.Runner1ID = C.RunnerID) " +
+                                                                 "    left outer join [Ragnar].[dbo].[Runner] D on (B.Runner2ID = D.RunnerID) " +
+                                                                 "order by " +
+                                                                 "    A.[Order]", conn))
                     {
                         SqlDataReader rdr = myCommand.ExecuteReader();
                         bool rds_est = true, rde_est = true;
@@ -129,12 +121,9 @@ namespace TeamProgress.Models
                             // Distance
                             double dist = rdr["Distance"].ToDouble();
                             // Runner Pace
-                            double pace = defaultpace;
                             int? runner1 = rdr["Runner1ID"].ToNullableInt32();
                             int? runner2 = rdr["Runner2ID"].ToNullableInt32();
-                            Runner p = getRunner(runner1);
-                            if (p != null)
-                                pace = p.Pace != 0 ? p.Pace : defaultpace;
+                            double? pace = rdr["Pace"].ToNullableDouble();
                             // Read dates well
                             DateTime? ds = null;
                             if (rdr["StartTime"] != DBNull.Value)
@@ -163,33 +152,38 @@ namespace TeamProgress.Models
                             {
                                 rde = null;
                                 rde_est = true;
-                                if (!pace.Equals(0))
-                                    rde = rds.ToDateTime().AddHours(dist*pace/60);
+                                if (pace != null)
+                                    rde = rds.ToDateTime().AddHours(dist*pace.ToDouble()/60);
                             }
                             TimeSpan ts = rde.ToDateTime().Subtract(rds.ToDateTime());
                             string legtime = string.Format("{0:D2}:{1:D2}:{2:D2}", new object[] {ts.Hours, ts.Minutes, ts.Seconds});
                             string truepace = string.Empty;
                             if (!rds_est && !rde_est)
-                                truepace = string.Format("{0:F2}", ((ts.Hours*3600 + ts.Minutes*60 + ts.Seconds)/dist)/60);
+                                truepace = $"{((ts.Hours * 3600 + ts.Minutes * 60 + ts.Seconds) / dist) / 60:F2}";
                             //
                             // Display Runner
                             if ((rdr["StartTime"] != DBNull.Value && rdr["EndTime"] == DBNull.Value) ||
                                 (string.IsNullOrEmpty(DisplayRunner) && rdr["EndTime"] == DBNull.Value))
-                                DisplayRunner = string.Format("<table height='100%' width='100%'>" +
-                                                              "  <tr>" +
-                                                              "    <td rowspan=\"2\" style=\"font-size:30pt; font-weight: bold; padding-right:20px;\">{0}</td>" +
-                                                              "    <td style=\"font-size:11pt; font-weight: bold; padding-right:20px;\">Est. {1}</td>" +
-                                                              "  </tr>" +
-                                                              "  <tr>" +
-                                                              "    <td style=\"font-size:11pt; font-weight: bold;\">Cell {2}</td>" +
-                                                              "  </tr>" +
-                                                              "</table>",
-                                    new object[]
-                                    {
-                                        rdr["Runner1Name"].ToString(), rde.ToDateTime().ToString("hh:mm tt"),
-                                        rdr["Runner1Cell"].ToString()
-                                    });
+                            {
+                                string n = rdr["Runner1Name"].ToString();
+                                if (!string.IsNullOrEmpty(rdr["Runner2Name"].ToString()))
+                                    n += "/" + rdr["Runner2Name"].ToString();
+                                string cell = rdr["Runner1Cell"].ToString() + " ";
+                                if (!string.IsNullOrEmpty(rdr["Runner2Cell"].ToString()))
+                                    cell += rdr["Runner2Cell"].ToString();
+                                string esttime = rde.ToDateTime().ToString("hh:mm tt");
+                                DisplayRunner = "<table height='100%' width='100%'>" +
+                                                "  <tr>" +
+                                                $"    <td rowspan=\"2\" style=\"font-size:30pt; font-weight: bold; padding-right:20px;\">{n}</td>" +
+                                                $"    <td style=\"font-size:11pt; font-weight: bold; padding-right:20px;\">Est. {esttime}</td>" +
+                                                "  </tr>" +
+                                                "  <tr>" +
+                                                $"    <td style=\"font-size:11pt; font-weight: bold;\">{cell}</td>" +
+                                                "  </tr>" +
+                                                "</table>";
+                            }
                             //
+
                             // Display Team
                             DisplayTeam = string.Format("<table height='100%' width='100%'><tr><td style=\"text-align:center; vertical-align:middle; font-size:20pt; \">{0}</td></tr></table>", new object[] {TeamDefinition.Name});
                             //
@@ -210,6 +204,7 @@ namespace TeamProgress.Models
                                 StartTimeEstimated = rds_est,
                                 EndTimeEstimated = rde_est,
                                 LegTime = legtime,
+                                Pace = pace,
                                 TruePace = truepace,
                                 Runner1Name = rdr["Runner1Name"].ToString(),
                                 Runner1Pace = rdr["Runner1Pace"].ToString(),
@@ -244,6 +239,23 @@ namespace TeamProgress.Models
             }
         }
 
+        private void SetRunners(SqlConnection conn)
+        {
+            if (Runners.Count == 0)
+            {
+                using (SqlCommand myCommand = new SqlCommand("SELECT [RunnerID],[Name],[DisplayName],[Pace],[Cell],[Email],[EmergencyContact],[Type] FROM [Ragnar].[dbo].[Runner] order by Name", conn))
+                {
+                    SqlDataReader rdr = myCommand.ExecuteReader();
+                    while (rdr.Read())
+                        Runners.Add(new Runner(rdr["RunnerID"].ToInt32(), rdr["Name"].ToString(),
+                            rdr["DisplayName"].ToString(), rdr["Pace"].ToDouble(), rdr["Cell"].ToString(),
+                            rdr["Email"].ToString(), rdr["EmergencyContact"].ToString(),
+                            (eType)rdr["Type"].ToInt32()));
+                    rdr.Close();
+                }
+            }
+        }
+
         /// <summary>
         ///    Destructor
         ///
@@ -260,42 +272,43 @@ namespace TeamProgress.Models
         {
             try
             {
-                DateTime? d = null;
-                int? r = null;
-                if (field.Equals("StartTime") || field.Equals("EndTime"))
-                {
-                    if (!value.Equals("null"))
-                        d = DateTime.ParseExact(value.Replace("\"", ""), "yyyy-MM-dd'T'HH:mm:ss", CultureInfo.InvariantCulture);
-                }
-                else if (field.Equals("Runner1ID") || field.Equals("Runner2ID"))
-                {
-                    if (!value.Equals("null"))
-                        r = Int32.Parse(value, CultureInfo.InvariantCulture);
-                    if (field.Equals("Runner1ID"))
-                        field = "RunnerID";
-                }
                 //
                 // B. Update database
                 using (SqlConnection conn = new SqlConnection(GetConnectionString()))
                 {
                     conn.Open();
-                    // New record
-                    string s;
-                    if (legRunnerId == null)
-                        s = "insert into [Ragnar].[dbo].[LegRunner] (TeamID, LegID, " + field + ") values (@teamid, @legid, @value)";
-                    else
-                        s = "update [Ragnar].[dbo].[LegRunner] set " + field + " = @value where LegRunnerID = @legrunnerid";
-                    using (SqlCommand qry = new SqlCommand(s, conn))
+                    //
+                    Object o = null;
+                    string secondField = string.Empty;
+                    double? secondValue = null;
+                    if (field.Equals("StartTime") || field.Equals("EndTime"))
                     {
-                        qry.Parameters.Add("@teamid", SqlDbType.Int).Value = 1;
-                        qry.Parameters.Add("@legid", SqlDbType.Int).Value = legId;
-                        qry.Parameters.Add("@legrunnerid", SqlDbType.Int).Value = (object)legRunnerId ?? DBNull.Value;
-                        if (field.Equals("StartTime") || field.Equals("EndTime"))
-                            qry.Parameters.Add("@value", SqlDbType.DateTime).Value = (object)d ?? DBNull.Value;
-                        else if (field.Equals("RunnerID") || field.Equals("Runner1ID") || field.Equals("Runner2ID"))
-                            qry.Parameters.Add("@value", SqlDbType.Int).Value = (object)r ?? DBNull.Value;
-                        qry.ExecuteNonQuery();
+                        if (!value.Equals("null"))
+                            o = DateTime.ParseExact(value.Replace("\"", ""), "yyyy-MM-dd'T'HH:mm:ss", CultureInfo.InvariantCulture);
                     }
+                    else if (field.Equals("Runner1ID") || field.Equals("Runner2ID"))
+                    {
+                        if (!value.Equals("null"))
+                            o = Int32.Parse(value, CultureInfo.InvariantCulture);
+                        if ((Int32)o == -1)
+                            o = null;
+                        SetRunners(conn);
+                        Runner p = getRunner(o.ToInt32());
+                        if (p != null)
+                        {
+                            secondField = "Pace";
+                            secondValue = p.Pace;
+                        }
+                    }
+                    else if (field.Equals("Pace"))
+                    {
+                        if (!value.Equals("null"))
+                            o = value.ToDouble();
+                    }
+                    // New record
+                    UpdateField(legRunnerId, field, o, conn, legId);
+                    if (!string.IsNullOrEmpty(secondField))
+                        UpdateField(legRunnerId, secondField, (object)secondValue, conn, legId);
                     conn.Close();
                     return true;
                 }
@@ -303,6 +316,37 @@ namespace TeamProgress.Models
             catch (Exception e)
             {
                 return false;
+            }
+        }
+
+        /// <summary>
+        ///     UpdateField()
+        /// 
+        /// </summary>
+        /// <param name="legRunnerId"></param>
+        /// <param name="field"></param>
+        /// <param name="o"></param>
+        /// <param name="conn"></param>
+        /// <param name="legId"></param>
+        private void UpdateField(int? legRunnerId, string field, Object o, SqlConnection conn, int legId)
+        {
+            string s;
+            if (legRunnerId == null)
+                s = $"insert into [Ragnar].[dbo].[LegRunner] (TeamID, LegID, {field}) values (@teamid, @legid, @value)";
+            else
+                s = $"update [Ragnar].[dbo].[LegRunner] set {field} = @value where LegRunnerID = @legrunnerid";
+            using (SqlCommand qry = new SqlCommand(s, conn))
+            {
+                qry.Parameters.Add("@teamid", SqlDbType.Int).Value = 1;
+                qry.Parameters.Add("@legid", SqlDbType.Int).Value = legId;
+                qry.Parameters.Add("@legrunnerid", SqlDbType.Int).Value = (object)legRunnerId ?? DBNull.Value;
+                if (field.Equals("StartTime") || field.Equals("EndTime"))
+                    qry.Parameters.Add("@value", SqlDbType.DateTime).Value = (object)o ?? DBNull.Value;
+                else if (field.Equals("Runner1ID") || field.Equals("Runner2ID"))
+                    qry.Parameters.Add("@value", SqlDbType.Int).Value = o ?? DBNull.Value;
+                else if (field.Equals("Pace"))
+                    qry.Parameters.Add("@value", SqlDbType.VarChar).Value = o.ToString();
+                qry.ExecuteNonQuery();
             }
         }
 
