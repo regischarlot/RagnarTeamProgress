@@ -10,10 +10,6 @@ namespace TeamProgress.Models
         {
         }
 
-        public Runner(int id, string name, string displayname, double pace, string cell, string email, string contact, TeType type) : base(id, name, displayname, pace, cell, email, contact, type)
-        {
-        }
-
         public Boolean Update(int id, string name, string displayname, float pace, string cell, string email, string emergencycontact, int type)
         {
             try

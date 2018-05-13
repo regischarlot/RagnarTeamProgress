@@ -6,7 +6,7 @@ namespace TeamProgress.Models
 
     public class Person : DataAccess
     {
-        public int Id { get; set; }
+        public int? Id { get; set; }
         public String Name { get; set; }
         public String DisplayName { get; set; }
         public Double Pace { get; set; }
@@ -17,18 +17,6 @@ namespace TeamProgress.Models
 
         public Person()
         {
-        }
-
-        public Person(int id, string name, string displayname, double pace, string cell, string email, string contact, TeType type)
-        {
-            Id = id;
-            Name = name;
-            DisplayName = displayname;
-            Pace = pace;
-            Cell = cell;
-            Email = email;
-            EmergencyContact = contact;
-            Type = type;
         }
     }
 }

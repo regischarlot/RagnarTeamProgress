@@ -249,10 +249,17 @@ namespace TeamProgress.Models
                 {
                     SqlDataReader rdr = myCommand.ExecuteReader();
                     while (rdr.Read())
-                        Runners.Add(new Runner(rdr["RunnerID"].ToInt32(), rdr["Name"].ToString(),
-                            rdr["DisplayName"].ToString(), rdr["Pace"].ToDouble(), rdr["Cell"].ToString(),
-                            rdr["Email"].ToString(), rdr["EmergencyContact"].ToString(),
-                            (TeType)rdr["Type"].ToInt32()));
+                        Runners.Add(new Runner
+                        {
+                            Id = rdr["RunnerID"].ToInt32(),
+                            Name = rdr["Name"].ToString(),
+                            DisplayName = rdr["DisplayName"].ToString(),
+                            Pace = rdr["Pace"].ToDouble(),
+                            Cell = rdr["Cell"].ToString(),
+                            Email = rdr["Email"].ToString(),
+                            EmergencyContact = rdr["EmergencyContact"].ToString(),
+                            Type = (TeType)rdr["Type"].ToInt32()
+                        });
                     rdr.Close();
                 }
             }
@@ -286,12 +293,15 @@ namespace TeamProgress.Models
                             o = Int32.Parse(value, CultureInfo.InvariantCulture);
                         if (o != null && (Int32)o == -1)
                             o = null;
-                        SetRunners(conn);
-                        Runner p = GetRunner(o.ToInt32());
-                        if (p != null)
+                        if (o != null)
                         {
-                            secondField = "Pace";
-                            secondValue = p.Pace;
+                            SetRunners(conn);
+                            Runner p = GetRunner(o.ToInt32());
+                            if (p != null)
+                            {
+                                secondField = "Pace";
+                                secondValue = p.Pace;
+                            }
                         }
                     }
                     else if (field.Equals("Pace"))
